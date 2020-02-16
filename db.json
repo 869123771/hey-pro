@@ -1,0 +1,105 @@
+{
+  "getUserPermissionByToken": {
+    "success": true,
+    "message": "",
+    "result": {
+      "menu": [
+        {
+          "redirect": null,
+          "title": "Dashboard",
+          "icon": "fas fa-home",
+          "path": "/dashboard",
+          "name": "dashboard",
+          "component": "home/Dashboard",
+          "route": "1",
+          "meta": {
+            "keepAlive": false,
+            "internalOrExternal": false
+          }
+        },
+        {
+          "redirect": null,
+          "title": "系统管理",
+          "icon": "fas fa-cog",
+          "path": "/system",
+          "name": "system",
+          "component": "layouts/RouteView",
+          "route": "1",
+          "meta": {
+            "keepAlive": false,
+            "internalOrExternal": false
+          },
+          "children": [
+            {
+              "path": "/system/user",
+              "icon": "fas fa-user-cog",
+              "title": "用户管理",
+              "name": "system-user",
+              "component": "system/User",
+              "route": "1",
+              "meta": {
+                "keepAlive": false,
+                "internalOrExternal": false
+              }
+            },
+            {
+              "path": "/system/role",
+              "icon": "fas fa-user-tag",
+              "title": "角色管理",
+              "name": "system-role",
+              "component": "system/Role",
+              "route": "1",
+              "meta": {
+                "keepAlive": false,
+                "internalOrExternal": false
+              }
+            },
+            {
+              "path": "/system/menu",
+              "icon": "fas fa-list-ol",
+              "title": "菜单管理",
+              "name": "system-menu",
+              "component": "system/Menu",
+              "route": "1",
+              "meta": {
+                "keepAlive": false,
+                "internalOrExternal": false
+              }
+            }
+          ]
+        }
+      ],
+      "allauch": [
+      ],
+      "auth": [
+      ]
+    }
+  },
+  "login": {
+    "success": true,
+    "message": "",
+    "result": {
+      "userInfo": {
+        "userName": "jeecg",
+        "realName": "jeecg",
+        "avatar": "assets/img/avatar.png",
+        "birthday": null,
+        "sex": 2,
+        "email": null,
+        "phone": null,
+        "orgCode": null,
+        "status": 1,
+        "delFlag": "0",
+        "workNo": null,
+        "post": null,
+        "telephone": null,
+        "createBy": "admin",
+        "createTime": "2019-02-13 16:02:36",
+        "updateBy": "admin",
+        "updateTime": "2019-04-09 15:47:36",
+        "activitiSync": "1"
+      },
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODE1ODEwMjEsInVzZXJuYW1lIjoiamVlY2cifQ.c-LMiMQlEx8mSs4IhipSZ0GM_l0utpFDPJTNXWLYSk0"
+    }
+  }
+}

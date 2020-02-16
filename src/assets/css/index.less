@@ -1,0 +1,62 @@
+@import "~heyui/themes/common.less";
+@import '~@fortawesome/fontawesome-free/less/fontawesome';
+@import '~@fortawesome/fontawesome-free/less/solid';
+@import '~@fortawesome/fontawesome-free/less/regular';
+@import '~@fortawesome/fontawesome-free/less/brands';
+body{
+  background: #f3f6f8;
+  color: #2f2f2f;
+  font-weight: 400;
+}
+button:focus{
+  outline: none !important;
+}
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+.h-panel {
+  border: none;
+  &-title {
+    color: @dark-color;
+  }
+  &-bar {
+    padding: 15px 25px;
+  }
+  &-tabs-bar {
+    .h-tabs-default > .h-tabs-item {
+      padding: 16px 15px;
+      font-size: 18px;
+    }
+  }
+  &-bar-s {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    .h-panel-title {
+      font-size: 15px;
+    }
+  }
+  &-body {
+    padding: 25px;
+  }
+}
+
+.h-menu-white .h-menu-li .h-menu-li-selected {
+  background-color: #f0f6ff;
+}
+
+.h-table {
+  td, th {
+    padding: 10px 0 10px 16px;
+    height: 48px;
+  }
+}
+::-webkit-scrollbar-thumb {
+  background-color: hsla(0,0%,44%,.06);
+  border-radius: 12px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: @primary-color;
+  border-radius: 12px
+}
