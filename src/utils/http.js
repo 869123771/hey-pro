@@ -1,6 +1,6 @@
 import axios from 'axios'
 import qs from 'qs'
-import {getToken} from './store'
+import {getToken,localRead} from './store'
 import {constant} from "./index";
 
 const ajax = axios.create({
@@ -10,9 +10,15 @@ const ajax = axios.create({
 
 ajax.interceptors.request.use(config => {
     // loading
-    const token = getToken()
-    if (token) {
-        config.headers['X-Access-Token'] = token // 让每个请求携带自定义 token 请根据实际情况自行修改
+    const tokenList = getToken()
+    const organization = localRead(constant.CURRENT_ORGANIZATION)
+    debugger;
+    if (tokenList) {
+        let {accessToken,tokenType} = JSON.parse(tokenList);
+        config.headers['Authorization'] = `${tokenType} ${accessToken}`;
+    }
+    if (organization) {
+        config.headers['organizationcode'] = organization.code;
     }
     if (config.method == 'get') {
         config.params = {
@@ -34,7 +40,7 @@ ajax.interceptors.response.use(response => {
 })
 
 const checkStatus = (response) => {
-    let {status: httpStatus, data: {message, success, result}} = response
+    let {status: httpStatus, data: {msg, code, data}} = response
     let httpStatusList = [200, 304, 400]
     let httpMsg
     switch (httpStatus) {
@@ -80,21 +86,23 @@ const checkStatus = (response) => {
     // loading
     // 如果http状态码正常，则直接返回数据
     if (response && httpStatusList.includes(httpStatus)) {
-        return {httpStatus, message, success, result}
+        return {httpStatus, msg, code, data}
     }
     // 异常状态下，把错误信息返回去
     return {
         httpStatus,
-        message: httpMsg
+        msg : httpMsg,
+        code,
+        data
     }
 }
 
 const checkCode = (res) => {
-    let {httpStatus, message, success, result} = res
+    let {httpStatus, msg, code, data} = res
     if (res && httpStatus !== 200) {
-        sweetAlert.error(message ? message : result)
+        sweetAlert.error(msg ? msg : data)
     }
-    return {message, success, result}
+    return {msg, code, data}
 }
 
 export default {
@@ -136,24 +144,41 @@ export default {
             }
         )
     },
-    post(url, data) {
-        let {_params} = data
-        let postParamsType = {
-            data: JSON.stringify(data),
+    post(url, data, type) {
+        let pattern = {
+            formData: {
+                data: qs.stringify(data),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            },
+            queryString: {
+                params : data,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
         }
-        if(_params && _params instanceof Object){
-            postParamsType = {
-                params : _params
+        let postPattern = {}
+        if (type) {
+            postPattern = {
+                ...pattern[type]
+            }
+        } else {
+            postPattern = {
+                data: JSON.stringify(data),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json; charset=UTF-8'
+                }
             }
         }
         return ajax({
             method: 'post',
             url,
-            ...postParamsType,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/json; charset=UTF-8'
-            }
+            ...postPattern,
         }).then(
             (response) => {
                 return checkStatus(response)
@@ -190,24 +215,24 @@ export default {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            responseType : 'blob'
+            responseType: 'blob'
         }).then(response => {
             let desObj = {}
-            let {data,headers} = response
+            let {data, headers} = response
 
-            headers['content-disposition'].split(';').forEach(item=>{
+            headers['content-disposition'].split(';').forEach(item => {
                 desObj = {
                     ...desObj,
                     ...qs.parse(item)
                 }
             })
             return {
-                filename : desObj.filename,
+                filename: desObj.filename,
                 data
             }
         })
     },
-    ajax(method,url, params){
+    ajax(method, url, params) {
         return ajax({
             method,
             url,

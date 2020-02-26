@@ -53,7 +53,6 @@
         methods: {
             show(event) {
                 console.log(event);
-                debugger;
                 let parent = event.target.parentNode;
                 this.nowIndex = parent.getAttribute('index') || parent.parentNode.getAttribute('index');
                 if (this.nowIndex == null) {
@@ -72,7 +71,7 @@
                 this.$router.push(item);
             },
             isCurrentTab(item) {
-                return this.$route.name === item.name
+                return this.$route.meta.id === item.meta.id
             },
             trigger(key, data, event) {
                 if (key === 'closeAll') {
@@ -100,7 +99,7 @@
                     }
                     if (newRoute) this.$router.replace(newRoute);
                 }
-                localSave(constant.globalTabs,this.tagList)
+                localSave(constant.GLOBAL_TABS,this.tagList)
             },
             closeOtherTab(item, index) {
                 if (this.$route.name !== item.name) {
@@ -108,25 +107,24 @@
                 }
                 this.tagList.splice(0, index);
                 this.tagList.splice(1);
-                localSave(constant.globalTabs,this.tagList)
+                localSave(constant.GLOBAL_TABS,this.tagList)
             },
             clearTab() {
                 this.tagList = [];
-                localSave(constant.globalTabs,[])
+                localSave(constant.GLOBAL_TABS,[])
                 this.$router.push({ name: 'dashboard' });
             },
             gotoTab(item) {
-                debugger;
-                if (!item.name) return;
-                const {name, query, params, meta} = item;
-                let routeObj = {name, query, params, meta: meta || {}};
-                if (!any(this.tagList, v => v.name === name)) {
+                if (!item.meta.id) return;
+                const {name, query, params, meta,path} = item;
+                let routeObj = {path ,name, query, params, meta: meta || {}};
+                if (!any(this.tagList, v => v.meta.id === meta.id)) {
                     this.tagList.push(routeObj);
-                    localSave(constant.globalTabs, this.tagList)
+                    localSave(constant.GLOBAL_TABS, this.tagList)
                 }
             },
             init() {
-                this.tagList = localRead(constant.globalTabs) || []
+                this.tagList = localRead(constant.GLOBAL_TABS) || []
                 this.gotoTab(this.$route);
             },
         },

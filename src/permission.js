@@ -12,22 +12,21 @@ NProgress.configure({showSpinner: false}) // NProgress Configuration
 const whiteList = ['/login', '/user/register-result'] // no redirect whitelist
 
 router.beforeEach((to, from, next) => {
-    debugger;
     NProgress.start() // start progress bar
     let {matched, path} = to
     if (getToken()) {
         /* has token */
         if (path === '/login') {
-            next({path: '/dashboard/analysis'})
+            next({path: '/'})
             NProgress.done()
         } else {
             if (store.getters.permissionList.length === 0) {
-                store.dispatch('GET_PERMISSION_LIST').then(({menu}) => {
-                    if (!menu) {
+                store.dispatch('GET_PERMISSION_LIST').then((data) => {
+                    if (!data) {
                         return;
                     }
                     let constRoutes = [];
-                    constRoutes = generateIndexRouter(menu);
+                    constRoutes = generateIndexRouter(data);
                     // 添加主界面路由
                     store.dispatch('GET_ROUTERS', {constRoutes}).then(() => {
                         // 根据roles权限生成可访问的路由表
@@ -58,7 +57,6 @@ router.beforeEach((to, from, next) => {
             }
         }
     } else {
-        debugger;
         if (whiteList.includes(to.path)) {
             // 在免登录白名单，直接进入
             next()
@@ -77,11 +75,11 @@ router.afterEach(() => {
 export const generateIndexRouter = (data) =>{
     let indexRouter = [{
         path: '/',
-        name: 'dashboard',
+        name: 'home',
         //component: () => import('@/components/layouts/BasicLayout'),
         component: resolve => require(['@/components/layouts/PageLayout'], resolve),
         meta: { title: '首页' },
-        redirect: '/dashboard',
+        redirect: '/home',
         children: [
             ...generateChildRouters(data)
         ]
@@ -95,38 +93,25 @@ export const generateIndexRouter = (data) =>{
 const generateChildRouters = (data) =>{
     const routers = [];
     for (let item of data) {
-        let {path,name,title,icon,redirect,meta,alwaysShow,children} = item
+        let {url,fullUrl:path,id,file_path,name,title,icon,params,children} = item
         let component = "";
-        if(item.component.includes('layouts')){
-            component = "components/"+item.component;
+        if(url.includes('#')){
+            component = "components/layouts/RouteView";
         }else{
-            component = "views/"+item.component;
-        }
-
-        // eslint-disable-next-line
-        let URL = (item.meta.url|| '').replace(/{{([^}}]+)?}}/g, (s1, s2) => eval(s2)) // URL支持{{ window.xxx }}占位符变量
-        if (url(URL)) {
-            item.meta.url = URL;
+            component = "views/" + url;
         }
 
         let menu =  {
-            path,
+            path : '/' + path,
             name,
-            redirect,
-            component: resolve => require(['@/' + component+'.vue'], resolve),
-            hidden:item.hidden,
-            //component:()=> import(`@/views/${item.component}.vue`),
+            component: resolve => require(['@/' + component + '.vue'], resolve),
             meta: {
                 title ,
                 icon,
-                url : meta.url ,
-                permissionList : meta.permissionList,
-                keepAlive : meta.keepAlive
+                url ,
+                params,
+                id
             }
-        }
-        if(alwaysShow){
-            menu.alwaysShow = true;
-            menu.redirect = path;
         }
         if (children && children.length > 0) {
             menu.children = [...generateChildRouters(children)];

@@ -1,6 +1,6 @@
 <template>
     <div class="app-header">
-        <div style="width:50px;float:left;">
+        <div class="float-left">
             <Button
                     :icon="layoutConfig.sideCollapsed ? 'fas fa-indent':'fas fa-outdent'"
                     no-border
@@ -15,13 +15,27 @@
                     v-model="searchText"
                     placeholder="全局搜索..">
             </AutoComplete>
-             <Message></Message>
-            <div class="app-header-icon-item" v-tooltip content="GitHub" theme="white">
+            <Message></Message>
+            <div class="float-left app-header-org">
+                <Select
+                        v-model="currentOrganization"
+                        :datas="organizationList"
+                        :no-border="true"
+                        :equal-width="false"
+                        :null-option="false"
+                        keyName="id"
+                        titleName="name"
+                        type="object"
+                        @change="changeOrganization"
+                >
+                </Select>
+            </div>
+            <!--<div class="app-header-icon-item" v-tooltip content="GitHub" theme="white">
                 <i class="h-icon-github"></i>
             </div>
             <div class="app-header-icon-item" v-tooltip content="教学文档" theme="white">
                 <i class="h-icon-help"></i>
-            </div>
+            </div>-->
             <DropdownMenu
                     className="app-header-dropdown"
                     trigger="hover"
@@ -31,17 +45,17 @@
                     :datas="infoMenu"
                     @onclick="trigger"
             >
-                <Avatar :src="require(`@/${userInfo.avatar}`)" :width="30"><span>{{userInfo.userName}}</span></Avatar>
+                <Avatar :src="userInfo.avatar" :width="30"><span>{{userInfo.name}}</span></Avatar>
             </DropdownMenu>
             <div class="app-header-icon-item" v-tooltip content="系统布局配置" theme="white" @click="showSettingModal">
-                <i class="fas fa-ellipsis-v" @click = "$emit('showModal')"></i>
+                <i class="fas fa-ellipsis-v" @click="$emit('showModal')"></i>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-    import {mapState} from 'vuex';
+    import {mapState, mapMutations, mapActions} from 'vuex';
     import Message from "./globalHeader/Message";
 
     export default {
@@ -65,10 +79,21 @@
         },
         computed: {
             ...mapState({
-                userInfo: ({user}) => user.userInfo
+                userInfo: ({user}) => user.userInfo,
+                currentOrganization: ({user}) => user.currentOrganization,
+                organizationList: ({user}) => user.organizationList
             })
         },
         methods: {
+            ...mapMutations({
+                setCurrentOrganization: 'SET_CURRENT_ORGANIZATION'
+            }),
+            ...mapActions({
+                loginOut: 'LOGIN_OUT'
+            }),
+            changeOrganization(currentOrganization) {
+                this.setCurrentOrganization(currentOrganization)
+            },
             listenResize() {
                 let {sideCollapsed} = this.layoutConfig
                 let windowWidth = window.innerWidth;
@@ -88,8 +113,12 @@
                 });
                 window.dispatchEvent(new Event('resize'));
             },
-            trigger() {
-
+            trigger(key) {
+                switch (key) {
+                    case 'logout' :
+                        this.loginOut();
+                        break
+                }
             },
             showSettingModal() {
 
@@ -176,6 +205,18 @@
                 .h-dropdownmenu-item {
                     padding: 8px 20px;
                 }
+            }
+        }
+
+        /deep/ &-org {
+            cursor: pointer;
+
+            div, i {
+                cursor: pointer;
+            }
+
+            &:hover {
+                background: @hover-background-color;
             }
         }
 

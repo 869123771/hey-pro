@@ -4,7 +4,9 @@ import {constant, apiList, http} from '@/utils'
 export default {
     state: {
         token: getToken(),
-        userInfo: localRead(constant.userInfo),
+        userInfo: localRead(constant.USER_INFO),
+        organizationList : localRead(constant.ORGANIZATION_LIST),
+        currentOrganization : localRead(constant.CURRENT_ORGANIZATION),
         permissionList: [],
         auth : [],
         allAuth : [],
@@ -15,6 +17,12 @@ export default {
         },
         SET_USER_INFO(state, userInfo) {
             state.userInfo = userInfo
+        },
+        SET_CURRENT_ORGANIZATION(state,currentOrganization){
+            state.currentOrganization = currentOrganization
+        },
+        SET_ORGANIZATION_LIST(state, organizationList){
+            state.organizationList = organizationList
         },
         SET_PERMISSION_LIST: (state, permissionList) => {
             state.permissionList = permissionList
@@ -27,42 +35,35 @@ export default {
         },
     },
     actions: {
-        HANDLE_LOGIN({commit}, result) {
-            debugger;
-            let {token, userInfo, userInfo: {userName}} = result
-            setToken(token)
-            localSave(constant.userInfo, userInfo)
-            commit('SET_TOKEN', token)
-            commit('SET_USER_INFO', userInfo)
+        HANDLE_LOGIN({commit}, data) {
+            let {tokenList, member, organizationList} = data
+            setToken(tokenList)
+            localSave(constant.USER_INFO, member)
+            localSave(constant.ORGANIZATION_LIST, organizationList)
+            localSave(constant.CURRENT_ORGANIZATION, organizationList[0])
+            commit('SET_TOKEN', tokenList)
+            commit('SET_USER_INFO', member)
+            commit('SET_ORGANIZATION_LIST',organizationList)
+            commit('SET_CURRENT_ORGANIZATION',organizationList[0])
         },
 
         // 获取用户信息
         async GET_PERMISSION_LIST({commit}) {
-            debugger;
-            let token = getToken()
-            let {USER_AUTH, SYS_BUTTON_AUTH} = constant
-            let {success, result} = await http.get(apiList.system_permission_menu, {token})
-            if (success) {
-                let {menu, auth, allAuth} = result
-                localSave(USER_AUTH, auth)
-                localSave(SYS_BUTTON_AUTH, allAuth)
-                if (menu) {
-                    commit('SET_PERMISSION_LIST', menu)
-                    commit('SET_AUTH', auth)
-                    commit('SET_ALL_AUTH', allAuth)
+            let {SUCCESS} = constant
+            let {code, data} = await http.post(apiList.index_nav)
+            if (code === SUCCESS) {
+                if (data) {
+                    commit('SET_PERMISSION_LIST', data)
                 }
             }
-            return result
+            return data
         },
 
         // 退出登录
         async LOGIN_OUT({commit, state}) {
-            debugger;
-            let logoutToken = state.token;
             commit('SET_TOKEN', '')
             commit('SET_PERMISSION_LIST', [])
             setToken('')
-            //await http.post(apiList.login_out,logoutToken)
             location.href = "/"
         },
     }

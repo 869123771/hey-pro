@@ -1,7 +1,12 @@
 export default {
-    tokenKey : 'ACCESS_TOKEN',
-    userInfo : 'USER_INFO',
-    globalTabs : 'GLOBAL_TABS',
+    SUCCESS : 200,
+    ACCESS_TOKEN : 'accessToken',
+    USER_INFO : 'userInfo',
+    CURRENT_ORGANIZATION : 'currentOrganization',
+    ORGANIZATION_LIST : 'organizationList',
+    GLOBAL_TABS : 'globalTabs',
+    FORM_DATA : 'formData',
+    QUERY_STRING : ' queryString',
     config : {
         /**
          * @description 配置显示在浏览器标签的title

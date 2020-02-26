@@ -62,7 +62,7 @@ module.exports = {
         disableHostCheck: true,
         proxy: {
             '/api': {
-                target: process.env.VUE_APP_BASE_API || 'http://localhost:3000',
+                target: process.env.VUE_APP_BASE_API || 'https://beta.vilson.xyz/index.php',
                 ws: false,
                 //secure: false,
                 changeOrigin: true,

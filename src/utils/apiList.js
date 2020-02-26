@@ -1,4 +1,9 @@
+import entry from './apiList/entry'
+import home from "./apiList/home";
+import projectMgr from "./apiList/projectMgr";
+
 export default {
-    login : '/login',
-    system_permission_menu : '/getUserPermissionByToken'
+    ...entry,
+    ...home,
+    ...projectMgr
 }

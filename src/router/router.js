@@ -8,10 +8,10 @@ export const asyncRouterMap = [
 
     {
         path: '/',
-        name: 'dashboard',
+        name: 'home',
         component: PageLayout,
         meta: { title: '首页' },
-        redirect: '/dashboard',
+        redirect: '/home',
         children: [
             // // account
             // {

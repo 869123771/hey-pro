@@ -2,13 +2,16 @@
     <div class="login-vue">
         <div class="login-container">
             <div class="login-content">
-                <div class="login-title">管理系统</div>
+                <div>
+                    <p class="login-title">管理系统</p>
+                    <p class = "login-tip" v-show = "loginTip.show">{{loginTip.message}}</p>
+                </div>
                 <div class="login-name login-input">
-                    <input type="text" v-model="form.userName" autocomplete="off"/>
-                    <span class="placeholder" :class="{fixed: form.userName !== '' && form.userName !== null}">用户名</span>
+                    <input type="text" v-model="form.account" autocomplete="off" @input = "inputChange"/>
+                    <span class="placeholder" :class="{fixed: form.account !== '' && form.account !== null}">用户名</span>
                 </div>
                 <div class="login-password login-input">
-                    <input type="password" name="password" v-model="form.password" @keyup.enter="submit" autocomplete="off"/>
+                    <input type="password" v-model="form.password" @keyup.enter="submit" @input = "inputChange"/>
                     <span class="placeholder" :class="{fixed: form.password !== '' && form.password !== null}">密码</span>
                 </div>
                 <div class="button-div">
@@ -22,14 +25,19 @@
 
 <script>
     import {mapActions} from 'vuex'
-    import {http,apiList} from '@/utils'
+    import {http,apiList,constant} from '@/utils'
+    import md5 from 'md5'
     export default {
         name: "Login",
         data(){
             return {
                 form : {
-                    userName : '',
-                    password : ''
+                    account : '869123771@qq.com',
+                    password : 'wang3763237'
+                },
+                loginTip : {
+                    show :false,
+                    message : ''
                 },
                 loading : false,
                 rules : {
@@ -41,20 +49,60 @@
             ...mapActions({
                 handleLogin: 'HANDLE_LOGIN'
             }),
+            inputChange(){
+                let {show,id} = this.loginTip
+                if(show){
+                    if(this.form[id]){
+                        this.loginTip = {
+                            ...this.loginTip,
+                            show : false
+                        }
+                    }
+                }
+            },
             submit(){
-                this.login()
+                let {account,password} = this.form
+                if(!account.trim()){
+                    this.loginTip = {
+                        ...this.loginTip,
+                        show : true,
+                        message : '帐号不能为空',
+                        id : 'account'
+                    }
+                }else if(!password.trim()){
+                    this.loginTip = {
+                        ...this.loginTip,
+                        show : true,
+                        message : '密码不能为空',
+                        id : 'password'
+                    }
+                }else{
+                    this.login()
+                }
+            },
+            async getSystemConfig(){
+                let {code, message, result} = await http.post(apiList.system_config)
             },
             async login() {
                 this.loading = true
-                let {success, message, result} = await http.get(apiList.login)
-                if (success) {
-                    this.handleLogin(result)
-                    this.$router.push('/dashboard')
+                let {account,password} = this.form
+                let params = {
+                    account,
+                    password : md5(password),
+                    clientid : null,
+                }
+                let {code, msg, data} = await http.post(apiList.login,params,constant.FORM_DATA)
+                if (code === constant.SUCCESS) {
+                    this.handleLogin(data)
+                    this.$router.push('/')
                 } else {
-                    sweetAlert.error(message)
+
                 }
                 this.loading = false
             }
+        },
+        mounted() {
+            this.getSystemConfig()
         }
     }
 </script>
@@ -82,12 +130,12 @@
             .login-content {
                 letter-spacing: 2px;
                 background: #FFF;
-                padding: 70px 30px 20px;
+                padding: 50px 30px 20px;
                 box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
                 border-radius: 3px;
                 box-sizing: border-box;
                 >div {
-                    margin: 30px 0;
+                    padding-bottom: 30px;
                     &.login-input {
                         position: relative;
                         .placeholder {
@@ -126,17 +174,18 @@
                             top: -16px;
                         }
                     }
-                    &.login-title {
+                    .login-title {
                         font-size: 30px;
                         color: @title-color;
                         line-height: 1;
-                        margin: -16px 0px 40px;
                         font-weight: 200;
                     }
-
+                    .login-tip{
+                        color : red;
+                        padding-top : 10px
+                    }
                 }
                 > .button-div {
-                    margin-top: 45px;
                     .h-btn {
                         padding: 12px 0;
                         font-size: 18px;

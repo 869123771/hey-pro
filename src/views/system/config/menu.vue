@@ -1,10 +1,10 @@
 <template>
-    
+    <h2>3eee</h2>
 </template>
 
 <script>
     export default {
-        name: "Menu"
+        name: "menu"
     }
 </script>
 

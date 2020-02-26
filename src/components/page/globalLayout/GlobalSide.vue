@@ -6,7 +6,7 @@
                 :datas="permissionList"
                 :inlineCollapsed="layoutConfig.sideCollapsed"
                 :className="`h-menu-${theme}`"
-                :option="{titleName:'title',keyName : 'name'}"
+                :option="{titleName:'title',keyName : 'id'}"
                 @click="trigger"
         >
         </Menu>
@@ -43,16 +43,16 @@
         },
         methods: {
             menuSelect() {
-                debugger;
-                if (this.$route.name) {
+                let {meta:{id}} = this.$route
+                if (id) {
                     this.$nextTick(() => {
-                        this.$refs.menu.select(this.$route.name);
+                        this.$refs.menu.select(id);
                     })
                 }
             },
             trigger(data) {
                 if (data.children.length) return;
-                this.$router.push({name: data.key});
+                this.$router.push({path: `/${data.value.fullUrl}`});
             },
             hideMenu() {
                 this.$store.commit('updateSiderCollapse', true);
