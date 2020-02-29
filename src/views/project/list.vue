@@ -1,7 +1,7 @@
 <template>
     <div class="project-list m-3 p-3 bg-white">
         <Row class = "py-3">
-            <Button color="blue" icon="h-icon-plus">创建新项目</Button>
+            <Button color="blue" icon="h-icon-plus"@click = "createProject">创建新项目</Button>
         </Row>
         <Row>
             <template v-for="(item,index) in project.list">
@@ -44,14 +44,32 @@
         <Row class = "mt-3">
             <Pagination v-model="pagination" align="right" @change="currentChange"></Pagination>
         </Row>
+        <Modal
+                v-model="modal.show"
+                :hasDivider =  true
+                :closeOnMask = true
+                :hasCloseIcon = "true"
+        >
+            <div slot="header">{{modal.title}}</div>
+            <add-project></add-project>
+            <div slot="footer" v-if = "modal.showFooter">
+                <button class="h-btn" @click="close">取消</button>
+                <button class="h-btn h-btn-primary" @click="confirm">确定</button>
+            </div>
+        </Modal>
     </div>
 </template>
 
 <script>
     import {http, apiList, constant} from '@/utils'
     import dayjs from 'dayjs'
+    import AddProject from "./list/AddProject";
+
     export default {
         name: "list",
+        components : {
+            AddProject
+        },
         data() {
             return {
                 project: {
@@ -62,6 +80,11 @@
                     page: 1,
                     size: 10,
                     total: 100
+                },
+                modal : {
+                    show : false,
+                    title : '创建项目',
+                    showFooter : true,
                 }
             }
         },
@@ -69,6 +92,13 @@
 
         },
         methods: {
+            createProject(){
+                this.modal = {
+                    ...this.modal,
+                    show : true,
+                    showFooter : false
+                }
+            },
             formatDate(time){
                 return dayjs(time).format('YYYY-MM-DD')
             },

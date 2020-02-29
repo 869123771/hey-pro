@@ -11,13 +11,13 @@
                         </span>
                     </Row>
                     <Row class="pt-3" type="flex">
-                        <Cell :xs = "24" :sm = "24" :md = "12" :lg = "12" :xl = "12" class = "motto-cell">
-                            <Avatar :src="userInfo.avatar" class = "h-full">
+                        <Cell :xs="24" :sm="24" :md="12" :lg="12" :xl="12" class="motto-cell">
+                            <Avatar :src="userInfo.avatar" class="h-full">
                                 <div class="text-xl">{{helloTime()}}{{ userInfo.name }}，祝你开心每一天！</div>
                                 <div class="text-gray-600 pt-2">{{userInfo.position}}</div>
                             </Avatar>
                         </Cell>
-                        <Cell :xs = "24" :sm = "24" :md = "12" :lg = "12" :xl = "12" class = "statistic-cell">
+                        <Cell :xs="24" :sm="24" :md="12" :lg="12" :xl="12" class="statistic-cell">
                             <div class="task-num h-full inline-block">
                                 <div class="text-gray-600">任务数</div>
                                 <div class="text-3xl">{{statistic.taskNum}}</div>
@@ -39,61 +39,73 @@
             </div>
         </Row>
         <Row class="m-5">
-            <Cell :xs = "24" :sm = "24" :md = "24" :lg = "16" :xl = "16">
-               <Row>
-                   <div class="h-panel h-panel-no-border">
-                       <div class="h-panel-bar">
-                           <span class="h-panel-title">进行中的项目</span>
-                           <span class="h-panel-right text-blue-500"><a>全部项目</a></span>
-                       </div>
-                       <div class="h-panel-body p-0">
-                           <Row>
-                               <template v-for = "{cover,name,description,schedule,owner_name,create_time} in statistic.projectList">
-                                   <Cell :xs = "24" :sm = "24" :md = "16" :lg = "8" :xl = "8">
-                                       <div class="h-panel border-0 rounded-none project-item">
-                                           <div class="h-panel-body">
-                                               <div class = "flex items-center">
-                                                   <Avatar :src = "cover" :width = "25" class = "w-8"></Avatar>
-                                                   <div class = "z-10 text-black-500"><a>{{name}}</a></div>
-                                               </div>
-                                               <div class = "truncate py-2 text-gray-500" v-height = "36">
-                                                   <span v-tooltip="true" :content="description" class = "cursor-text">{{description}}</span>
-                                               </div>
-                                               <div>
-                                                   <Progress
-                                                           v-tooltip="true"
-                                                           placement = "right"
-                                                           :content="`当前进度：${schedule}%`"
-                                                           :percent="schedule"
-                                                           :stroke-width="4"></Progress>
-                                               </div>
-                                               <div class = "flex justify-between pt-3 text-gray-500">
-                                                   <div>{{owner_name}}</div>
-                                                   <div>{{create_time}}</div>
-                                               </div>
-                                           </div>
-                                       </div>
-                                   </Cell>
-                               </template>
-                           </Row>
-                       </div>
-                   </div>
-               </Row>
-                <Row class = "mt-5">
+            <Cell :xs="24" :sm="24" :md="24" :lg="16" :xl="16">
+                <Row>
+                    <div class="h-panel h-panel-no-border">
+                        <div class="h-panel-bar">
+                            <span class="h-panel-title">进行中的项目</span>
+                            <span class="h-panel-right text-blue-500"><a
+                                    @click="$router.push('/project/list/my')">全部项目</a></span>
+                        </div>
+                        <div class="h-panel-body p-0">
+                            <Row>
+                                <template
+                                        v-for="{cover,collected,name,description,schedule,owner_name,create_time} in statistic.projectList">
+                                    <Cell :xs="24" :sm="24" :md="16" :lg="8" :xl="8">
+                                        <div class="h-panel border-0 rounded-none project-item">
+                                            <div class="h-panel-bar">
+                                               <span class="h-panel-title cursor-pointer">
+                                                   <Avatar :src="cover" :width="25" :distance="10">
+                                                       <template v-for="i in collected">
+                                                           <i class="h-icon-star-on collected-icon"></i>
+                                                       </template>
+                                                       <span class="text-black-500"><a>{{name}}</a></span>
+                                                   </Avatar>
+                                               </span>
+                                            </div>
+                                            <div class="h-panel-body">
+                                                <div class="truncate py-2 text-gray-500" v-height="36">
+                                                    <span v-tooltip="true" :content="description" class="cursor-text">{{description || '暂无介绍'}}</span>
+                                                </div>
+                                                <div>
+                                                    <Progress
+                                                            v-tooltip="true"
+                                                            placement="right"
+                                                            :content="`当前进度：${schedule}%`"
+                                                            :percent="schedule"
+                                                            :stroke-width="2"></Progress>
+                                                </div>
+                                                <div class="flex justify-between pt-3 text-gray-500">
+                                                    <div>{{owner_name}}</div>
+                                                    <div>{{getRelativeTime(create_time)}}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Cell>
+                                </template>
+                            </Row>
+                        </div>
+                    </div>
+                </Row>
+                <Row class="mt-5">
                     <div class="h-panel h-panel-no-border">
                         <div class="h-panel-bar">
                             <span class="h-panel-title">动态</span>
                         </div>
                         <div class="h-panel-body p-0 self-event">
-                            <template v-for = "(item,index) in statistic.selfEventsList">
-                                <Cell :xs = "24" :sm = "24" :md = "24" :lg = "24" :xl = "24">
-                                    <div class="h-panel" :class = "{'task-item' : index !== statistic.selfEventsList.length - 1}">
+                            <template v-for="(item,index) in statistic.selfEventsList">
+                                <Cell :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+                                    <div class="h-panel"
+                                         :class="{'task-item' : index !== statistic.selfEventsList.length - 1}">
                                         <div class="h-panel-body py-4 flex justify-between">
-                                            <Avatar :src = "item.member_avatar" :width = "40">
+                                            <Avatar :src="item.member_avatar" :width="30">
                                                 <div>{{ item.member_name + item.remark}}</div>
-                                                <div class = "text-gray-500">{{item.create_time + ' - ' + item.project_name}}</div>
+                                                <div class="text-gray-500 pt-2">{{getRelativeTime(item.create_time) + '
+                                                    - ' +
+                                                    item.project_name}}
+                                                </div>
                                             </Avatar>
-                                            <div class = "text-blue-500"><a>「 {{item.task_name}} 」 </a></div>
+                                            <div class="text-blue-500"><a>「 {{item.task_name}} 」 </a></div>
                                         </div>
                                     </div>
                                 </Cell>
@@ -102,21 +114,23 @@
                     </div>
                 </Row>
             </Cell>
-            <div class = "pl-5">
-                <Cell :xs = "24" :sm = "24" :md = "8" :lg = "8" :xl = "8" class = "pl-5">
+            <div class="pl-5">
+                <Cell :xs="24" :sm="24" :md="8" :lg="8" :xl="8" class="pl-5">
                     <Row>
                         <div class="h-panel h-panel-no-border">
                             <div class="h-panel-bar">
                                 <span class="h-panel-title">{{`我的任务(${statistic.taskList.length})`}}</span>
                             </div>
                             <div class="h-panel-body p-0">
-                                <Row :space = "8">
-                                    <template v-for = "(item,index) in statistic.taskList">
-                                        <Cell :xs = "24" :sm = "24" :md = "24" :lg = "24" :xl = "24">
-                                            <div class="h-panel" :class = "{'task-item' : index !== statistic.taskList.length - 1}">
+                                <Row :space="8">
+                                    <template v-for="(item,index) in statistic.taskList">
+                                        <Cell :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+                                            <div class="h-panel"
+                                                 :class="{'task-item' : index !== statistic.taskList.length - 1}">
                                                 <div class="h-panel-body py-4">
-                                                    <div class = "text-blue-500 cursor-pointer">{{item.name}}</div>
-                                                    <div class = "text-gray-500 text-base mt-2"><a>{{item.projectInfo.name}}</a></div>
+                                                    <div class="text-blue-500 cursor-pointer">{{item.name}}</div>
+                                                    <div class="text-gray-500 mt-2"><a>{{item.projectInfo.name}}</a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </Cell>
@@ -125,17 +139,17 @@
                             </div>
                         </div>
                     </Row>
-                    <Row class = "mt-5">
+                    <Row class="mt-5">
                         <div class="h-panel h-panel-no-border member-item">
                             <div class="h-panel-bar">
                                 <span class="h-panel-title">团队</span>
                             </div>
                             <div class="h-panel-body inline-block">
                                 <Row>
-                                    <template v-for = "(item,index) in statistic.memberAccountList">
-                                        <Cell :xs = "24" :sm = "24" :md = "12" :lg = "12" :xl = "12">
-                                            <div class = "flex items-center pb-3">
-                                                <span><Avatar :src = "item.avatar" :width = "25"></Avatar></span>
+                                    <template v-for="(item,index) in statistic.memberAccountList">
+                                        <Cell :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+                                            <div class="flex items-center pb-3">
+                                                <span><Avatar :src="item.avatar" :width="25"></Avatar></span>
                                                 <span>{{item.name}}</span>
                                             </div>
                                         </Cell>
@@ -152,7 +166,7 @@
 
 <script>
     import {mapState} from 'vuex'
-    import {http, apiList, constant} from '@/utils'
+    import {http, apiList, constant, tools} from '@/utils'
 
     export default {
         name: "home",
@@ -163,10 +177,10 @@
                     taskNum: 0,
                     rank: 2,
                     projectNum: 0,
-                    projectList : [],
-                    taskList : [],
-                    selfEventsList : [],
-                    memberAccountList : []
+                    projectList: [],
+                    taskList: [],
+                    selfEventsList: [],
+                    memberAccountList: []
                 }
             }
         },
@@ -200,6 +214,9 @@
                     time_format = "在加班吗？辛苦了，";
                 return time_format
             },
+            getRelativeTime(time) {
+                return tools.relativelyTime(time)
+            },
             getNewMotto() {
                 this.getMotto()
             },
@@ -222,7 +239,7 @@
                     this.statistic = {
                         ...this.statistic,
                         projectNum: total,
-                        projectList : list
+                        projectList: list
                     }
                 }
             },
@@ -237,26 +254,26 @@
                     this.statistic = {
                         ...this.statistic,
                         taskNum: total,
-                        taskList : list
+                        taskList: list
                     }
                 }
             },
-            async getSelfEvents(){
+            async getSelfEvents() {
                 let {code, data} = await http.post(apiList.index_self_event)
                 if (code === constant.SUCCESS) {
                     this.statistic = {
                         ...this.statistic,
-                        selfEventsList : data
+                        selfEventsList: data
                     }
                 }
             },
-            async getMemberAccount(){
+            async getMemberAccount() {
                 let {code, data} = await http.post(apiList.index_member_account)
                 if (code === constant.SUCCESS) {
-                    let {total,page,list,authList} = data
+                    let {total, page, list, authList} = data
                     this.statistic = {
                         ...this.statistic,
-                        memberAccountList : list
+                        memberAccountList: list
                     }
                 }
             },
@@ -273,21 +290,28 @@
 
 <style scoped lang="less">
     .work-space {
-        .motto-cell{
-            .h-avatar{
-                align-items: center;
-                display: flex;
+         .motto-cell {
+             /deep/.h-avatar {
+                &-info {
+                    align-items: center;
+                    display: flex;
+                    height: inherit;
+                }
             }
+
             height: 80px;
         }
-        .statistic-cell{
+
+        .statistic-cell {
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            >div{
-                height : 80px;
+
+            > div {
+                height: 80px;
             }
         }
+
         .task-num, .rank {
             position: relative;
             padding: 0 32px;
@@ -302,20 +326,43 @@
                 content: "";
             }
         }
-        .project-item{
+
+        .project-item {
             box-shadow: 1px 0 0 0 #e8e8e8, 0 1px 0 0 #e8e8e8, 1px 1px 0 0 #e8e8e8, inset 1px 0 0 0 #e8e8e8, inset 0 1px 0 0 #e8e8e8;;
-            &:hover{
+
+            &:hover {
                 position: relative;
                 z-index: 1;
-                box-shadow: 0 2px 8px rgba(0,0,0,.15)
+                box-shadow: 0 2px 8px rgba(0, 0, 0, .15)
+            }
+
+            /deep/ .h-panel {
+                &-title {
+                    font-size: 14px;
+
+                    .h-avatar {
+                        &-info {
+                            display: flex;
+                            align-items: center;
+
+                            .collected-icon {
+                                color: rgb(255, 175, 56);
+                                padding-right: 0.5rem;
+                                font-size: 14px;
+                            }
+                        }
+                    }
+                }
             }
         }
-        .self-event,.member-item{
-            .h-avatar{
-                width : initial;
+
+        .self-event, .member-item {
+            .h-avatar {
+                width: initial;
             }
         }
-        .task-item{
+
+        .task-item {
             border-bottom: 1px solid #edf2f7;
             border-radius: 0;
         }

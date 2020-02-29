@@ -1,3 +1,4 @@
+const webpack = require('webpack')
 const path = require("path");
 const heyVars = require('./src/hey.js');
 const resolve = dir => path.join(__dirname, dir);
@@ -35,6 +36,13 @@ module.exports = {
                 });
         }
 
+    },
+    configureWebpack: {
+        plugins: [
+            new webpack.ProvidePlugin({
+                HeyUI: 'heyui',
+            })
+        ]
     },
     css: {
         loaderOptions: {

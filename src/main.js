@@ -2,9 +2,9 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import "./assets/css/tailwind";
 import './permission'
-import "./assets/css/tailwind"
-
+import heyuiConfig from "./heyui.config";
 import HeyUI from 'heyui';
 
 Vue.use(HeyUI);

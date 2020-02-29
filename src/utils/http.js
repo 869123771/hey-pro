@@ -12,7 +12,6 @@ ajax.interceptors.request.use(config => {
     // loading
     const tokenList = getToken()
     const organization = localRead(constant.CURRENT_ORGANIZATION)
-    debugger;
     if (tokenList) {
         let {accessToken,tokenType} = JSON.parse(tokenList);
         config.headers['Authorization'] = `${tokenType} ${accessToken}`;
