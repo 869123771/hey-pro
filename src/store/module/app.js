@@ -4,9 +4,9 @@ export default {
     state : {
         layoutConfig : {
             sideCollapsed : false,
-            sideFixed : false,
+            sideFixed : true,
             sideTheme : 'white',
-            headerFixed : '',
+            headerFixed : true,
             showSysTab : true,
         },
     },

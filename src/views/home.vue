@@ -23,10 +23,9 @@
                                 <div class="text-3xl">{{statistic.taskNum}}</div>
                             </div>
                             <div class="rank h-full inline-block">
-                                <div class="text-gray-600">团队内排名</div>
+                                <div class="text-gray-600">团队人数</div>
                                 <div>
-                                    <span class="text-3xl h-full inline-block">{{statistic.rank}}</span>
-                                    <span class="text-gray-600 text-lg pl-2">/ 8</span>
+                                    <span class="text-3xl h-full inline-block">{{statistic.memberAccountNum}}</span>
                                 </div>
                             </div>
                             <div class="total pl-8 h-full inline-block">
@@ -119,22 +118,43 @@
                     <Row>
                         <div class="h-panel h-panel-no-border">
                             <div class="h-panel-bar">
-                                <span class="h-panel-title">{{`我的任务(${statistic.taskList.length})`}}</span>
+                                <span class="h-panel-title">{{`我的任务(${statistic.taskNum})`}}</span>
+                                <span class="h-panel-right">
+                                    <Select
+                                            v-model="tabs.type"
+                                            :datas="select.type"
+                                            :deletable="false"
+                                            class="w-32"
+                                            keyName="value"
+                                            titleName="label"
+                                            @change="getTaskList"
+                                    ></Select>
+                                </span>
                             </div>
                             <div class="h-panel-body p-0">
-                                <Row :space="8">
-                                    <template v-for="(item,index) in statistic.taskList">
-                                        <Cell :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-                                            <div class="h-panel"
-                                                 :class="{'task-item' : index !== statistic.taskList.length - 1}">
-                                                <div class="h-panel-body py-4">
-                                                    <div class="text-blue-500 cursor-pointer">{{item.name}}</div>
-                                                    <div class="text-gray-500 mt-2"><a>{{item.projectInfo.name}}</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </Cell>
+                                <Row class = "task-container">
+                                    <Loading text="Loading" :loading="tabs.loading"></Loading>
+                                    <Tabs
+                                            :datas="tabs.data"
+                                            v-model="tabs.active"
+                                            keyName="name"
+                                            titleName="title"
+                                            @change="getTaskList"
+                                    >
+                                        <template slot-scope="{tab}" slot="item"><span>{{tab.title}}</span></template>
+                                    </Tabs>
+                                    <template v-if="tabs.active === 'execute'">
+                                        <my-task :data="tabs.execute"></my-task>
                                     </template>
+                                    <template v-if="tabs.active === 'partake'">
+                                        <my-task :data="tabs.partake"></my-task>
+                                    </template>
+                                    <template v-if="tabs.active === 'create'">
+                                        <my-task :data="tabs.create"></my-task>
+                                    </template>
+                                    <Row class = "pb-4">
+                                        <Pagination v-model="pagination" align="right" @change="currentChange" layout="pager" small></Pagination>
+                                    </Row>
                                 </Row>
                             </div>
                         </div>
@@ -167,21 +187,49 @@
 <script>
     import {mapState} from 'vuex'
     import {http, apiList, constant, tools} from '@/utils'
+    import MyTask from "./home/MyTask";
 
     export default {
         name: "home",
+        components: {
+            MyTask
+        },
         data() {
             return {
                 motto: {},
                 statistic: {
                     taskNum: 0,
-                    rank: 2,
+                    memberAccountNum: 0,
                     projectNum: 0,
                     projectList: [],
                     taskList: [],
                     selfEventsList: [],
                     memberAccountList: []
-                }
+                },
+                tabs: {
+                    data: [
+                        {name: 'execute', title: '我执行的'},
+                        {name: 'partake', title: '我参与的'},
+                        {name: 'create', title: '我创建的'},
+                    ],
+                    execute: [],
+                    partake: [],
+                    create: [],
+                    active: 'execute',
+                    type: 0,
+                    loading : false
+                },
+                select: {
+                    type: [
+                        {value: 0, label: '未完成'},
+                        {value: 1, label: '已完成'},
+                    ]
+                },
+                pagination: {
+                    page: 1,
+                    size: 10,
+                    total: 0
+                },
             }
         },
         computed: {
@@ -220,6 +268,13 @@
             getNewMotto() {
                 this.getMotto()
             },
+            currentChange({page,size}){
+                this.pagination = {
+                    ...this.pagination,
+                    page,size
+                }
+                this.getTaskList()
+            },
             async getMotto() {
                 let {status, data} = await http.ajax('get', apiList.index_motto)
                 if (status === constant.SUCCESS) {
@@ -244,9 +299,29 @@
                 }
             },
             async getTaskList() {
+                this.tabs = {
+                    ...this.tabs,
+                    loading : true
+                }
+                let {active,type} = this.tabs
+                let {page,size:pageSize} = this.pagination
+                let taskType
+                switch (active) {
+                    case 'execute' :
+                        taskType = 1;
+                        break
+                    case 'partake' :
+                        taskType = 2;
+                        break
+                    case 'create' :
+                        taskType = 3;
+                        break
+                }
                 let params = {
-                    page: 1,
-                    pageSize: 10
+                    page,
+                    pageSize,
+                    taskType,
+                    type
                 }
                 let {code, data} = await http.post(apiList.index_task_num, params, constant.FORM_DATA)
                 if (code === constant.SUCCESS) {
@@ -254,7 +329,18 @@
                     this.statistic = {
                         ...this.statistic,
                         taskNum: total,
-                        taskList: list
+                    }
+                    this.pagination = {
+                        ...this.pagination,
+                        total
+                    }
+                    this.tabs = {
+                        ...this.tabs,
+                        [active]: list
+                    }
+                    this.tabs = {
+                        ...this.tabs,
+                        loading : false
                     }
                 }
             },
@@ -273,7 +359,8 @@
                     let {total, page, list, authList} = data
                     this.statistic = {
                         ...this.statistic,
-                        memberAccountList: list
+                        memberAccountList: list,
+                        memberAccountNum: list.length,
                     }
                 }
             },
@@ -290,8 +377,8 @@
 
 <style scoped lang="less">
     .work-space {
-         .motto-cell {
-             /deep/.h-avatar {
+        .motto-cell {
+            /deep/ .h-avatar {
                 &-info {
                     align-items: center;
                     display: flex;
@@ -362,10 +449,12 @@
             }
         }
 
-        .task-item {
+        /deep/ .task-item {
             border-bottom: 1px solid #edf2f7;
             border-radius: 0;
         }
-
+        .task-container{
+            height : 644px;
+        }
     }
 </style>

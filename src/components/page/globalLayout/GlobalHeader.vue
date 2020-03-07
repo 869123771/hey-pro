@@ -30,12 +30,6 @@
                 >
                 </Select>
             </div>
-            <!--<div class="app-header-icon-item" v-tooltip content="GitHub" theme="white">
-                <i class="h-icon-github"></i>
-            </div>
-            <div class="app-header-icon-item" v-tooltip content="教学文档" theme="white">
-                <i class="h-icon-help"></i>
-            </div>-->
             <DropdownMenu
                     className="app-header-dropdown"
                     trigger="hover"
@@ -47,8 +41,8 @@
             >
                 <Avatar :src="userInfo.avatar" :width="30"><span>{{userInfo.name}}</span></Avatar>
             </DropdownMenu>
-            <div class="app-header-icon-item" v-tooltip content="系统布局配置" theme="white" @click="showSettingModal">
-                <i class="fas fa-ellipsis-v" @click="$emit('showModal')"></i>
+            <div class="app-header-icon-item" @click="$emit('showModal')">
+                <i class="fas fa-ellipsis-v"></i>
             </div>
         </div>
     </div>
@@ -119,9 +113,6 @@
                         this.loginOut();
                         break
                 }
-            },
-            showSettingModal() {
-
             },
         },
         mounted() {
