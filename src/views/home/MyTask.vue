@@ -5,11 +5,11 @@
                 <div class="h-panel"
                      :class="{'task-item' : index !== data.length - 1}">
                     <div class="h-panel-body py-4 flex justify-between">
-                        <div>
+                        <div class = "flex truncate">
                             <span class="cursor-pointer tag" :class = "showTagType(item.pri)" v-tooltip="true" content="优先级">{{item.priText}}</span>
-                            <span class="text-blue-500 pl-2" v-tooltip="true" :content="item.name"><a>{{item.name}}</a></span>
+                            <span class="text-blue-500 pl-2 truncate" v-tooltip="true" :content="item.name"><a>{{item.name}}</a></span>
                         </div>
-                        <div>
+                        <div class = "flex pl-3 truncate">
                             <span
                                     v-tooltip = "true"
                                     :content = "showTaskTime(item.begin_time, item.end_time)"

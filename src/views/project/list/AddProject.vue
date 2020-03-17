@@ -4,13 +4,10 @@
                 ref="form"
                 :rules="rules"
                 :model="form"
-                showErrorTip
+                :showErrorTip = "false"
         >
             <FormItem label = "创建项目名称" :showLabel = "false" prop = "name">
                 <input type="text" v-model="form.name" placeholder="创建项目名称 (必填)">
-                <template slot="error" slot-scope="props">
-                    <span class="link">+++++++自定义的错误提示+++++++</span>
-                </template>
             </FormItem>
             <FormItem label = "项目模版" :showLabel = "false">
                 <Select v-model="form.templateCode"
@@ -25,7 +22,7 @@
                 <textarea rows="3" v-model = "form.description" placeholder="项目简介"/>
             </FormItem>
             <FormItem :showLabel = "false">
-                <Button color = "blue" :block = "true" @click = "create">创建项目</Button>
+                <Button color = "blue" :block = "true" :loading = "loading" @click = "create">创建项目</Button>
             </FormItem>
         </Form>
     </div>
@@ -33,9 +30,14 @@
 
 <script>
     import {http, apiList, constant} from '@/utils'
-    let {config:{_select}} = constant
+    import {isEmpty} from '30-seconds-of-code'
     export default {
         name: "AddProject",
+        props : {
+            data : {
+                type : Object
+            }
+        },
         data(){
             return {
                 form : {
@@ -43,6 +45,7 @@
                     templateCode : '',
                     description : '',
                 },
+                loading : false,
                 select : {
                     template : []
                 },
@@ -55,7 +58,24 @@
             create(){
                 let {result} = this.$refs.form.valid()
                 if (result) {
-                    this.$Message('验证成功');
+                    this.saveData();
+                }
+            },
+            async saveData(){
+                this.loading = true;
+                let params = {
+                    ...this.form,
+                }
+                let {code,data,msg} = await http.post(apiList.project_mgr_my_project_save,params)
+                if (code === constant.SUCCESS) {
+                    this.loading = false
+                    this.$Message({
+                        type : 'success',
+                        text: msg || '操作成功'
+                    });
+                    this.$emit('handleSuccess')
+                }else{
+                    this.loading = false
                 }
             },
             async getTemplateData(){

@@ -1,18 +1,19 @@
 <template>
-    <div class="project-list m-3 p-3 bg-white">
+    <div class="project-list m-3 p-6 bg-white">
         <Row class = "py-3">
             <Button color="blue" icon="h-icon-plus"@click = "createProject">创建新项目</Button>
         </Row>
         <Row>
+            <Loading :loading = "project.loading"></Loading>
             <template v-for="(item,index) in project.list">
-                <Row class="project-list-item" :class = "{'project-list-item-last' : index === project.list.length - 1}" type = "flex" align = "middle">
-                    <Cell :width="10">
+                <Row class="project-list-item" type = "flex" align = "middle" justify = "space-between">
+                    <Cell :width="12">
                         <Avatar :src="item.cover" shape="square" :width="40">
                             <div class = "text-blue-500"><a>{{item.name}}</a></div>
                             <div class = "text-gray-500">{{item.description}}</div>
                         </Avatar>
                     </Cell>
-                    <Cell :width="10" class = "flex justify-end">
+                    <Cell :width="12" class = "flex justify-end items-center">
                         <div class = "pr-12">
                             <div class = "text-gray-500">创建日期</div>
                             <div class = "text-gray-500">{{formatDate(item.create_time)}}</div>
@@ -31,12 +32,19 @@
                                 </Progress>
                             </div>
                         </div>
-                    </Cell>
-                    <Cell :width="4">
-                        <span v-tooltip = "true" content="添加成员" class = "fas fa-user-plus cursor-pointer text-blue-500 pr-2"></span>
-                        <span v-tooltip = "true" content="移出至回收站" class = "fas fa-trash cursor-pointer text-blue-500 pr-2"></span>
-                        <span v-tooltip = "true" content="项目设置" class = "fas fa-cog cursor-pointer text-blue-500 pr-2"></span>
-                        <span v-tooltip = "true" content="加入收藏" class = "fas fa-star cursor-pointer text-blue-500"></span>
+                        <div>
+                            <span v-tooltip = "true" content="添加成员" class = "fas fa-user-plus cursor-pointer text-blue-500 pr-2"></span>
+                            <Poptip content="确定将此项目移出至回收站？" @confirm="confirmDel(item.project_code)">
+                                <span v-tooltip = "true" content="移出至回收站" class = "fas fa-trash cursor-pointer text-blue-500 pr-2"></span>
+                            </Poptip>
+                            <span v-tooltip = "true" content="项目设置" class = "fas fa-cog cursor-pointer text-blue-500 pr-2"></span>
+                            <template v-if = "item.collected">
+                                <span v-tooltip = "true" content="取消收藏" class = "fas fa-star cursor-pointer text-blue-500" @click = "collected(item)"></span>
+                            </template>
+                            <template v-else>
+                                <span v-tooltip = "true" content="加入收藏" class = "fas fa-star cursor-pointer text-gray-500"  @click = "collected(item)"></span>
+                            </template>
+                        </div>
                     </Cell>
                 </Row>
             </template>
@@ -47,11 +55,11 @@
         <Modal
                 v-model="modal.show"
                 :hasDivider =  true
-                :closeOnMask = true
+                :closeOnMask = false
                 :hasCloseIcon = "true"
         >
             <div slot="header">{{modal.title}}</div>
-            <add-project></add-project>
+            <component :is = "component.is" :data = "component.data" @handleSuccess = "handleSuccess"></component>
             <div slot="footer" v-if = "modal.showFooter">
                 <button class="h-btn" @click="close">取消</button>
                 <button class="h-btn h-btn-primary" @click="confirm">确定</button>
@@ -68,13 +76,14 @@
     export default {
         name: "list",
         components : {
-            AddProject
+
         },
         data() {
             return {
                 project: {
                     list: [],
-                    total: 0
+                    total: 0,
+                    loading : false
                 },
                 pagination: {
                     page: 1,
@@ -85,6 +94,10 @@
                     show : false,
                     title : '创建项目',
                     showFooter : true,
+                },
+                component : {
+                    is : AddProject,
+                    data : {}
                 }
             }
         },
@@ -99,6 +112,13 @@
                     showFooter : false
                 }
             },
+            handleSuccess(){
+                this.modal = {
+                    ...this.modal,
+                    show : false
+                }
+                this.getProjectList()
+            },
             formatDate(time){
                 return dayjs(time).format('YYYY-MM-DD')
             },
@@ -109,7 +129,33 @@
                 }
                 this.getProjectList()
             },
+            async collected(item){
+                let {collected,project_code : projectCode} = item
+                let type = collected ? 'cancel' : 'collect'
+                let {code, msg} = await http.post(apiList.project_mgr_my_project_collect, {projectCode,type},constant.FORM_DATA)
+                if (code === constant.SUCCESS) {
+                    this.$Message({
+                        type : 'success',
+                        text : msg ? msg : '操作成功'
+                    })
+                    this.getProjectList()
+                }
+            },
+            async confirmDel(projectCode){
+                let {code, msg} = await http.post(apiList.project_mgr_my_project_delete, {projectCode},constant.FORM_DATA)
+                if (code === constant.SUCCESS) {
+                    this.$Message({
+                        type : 'success',
+                        text : msg ? msg : '删除成功'
+                    })
+                    this.getProjectList()
+                }
+            },
             async getProjectList() {
+                this.project = {
+                    ...this.project,
+                    loading: true
+                }
                 let {page,size:pageSize} = this.pagination
                 let params = {
                     page,
@@ -126,6 +172,10 @@
                     this.pagination = {
                         ...this.pagination,
                         total
+                    }
+                    this.project = {
+                        ...this.project,
+                        loading: false
                     }
                 }
             }

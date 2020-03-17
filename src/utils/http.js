@@ -62,7 +62,7 @@ const checkStatus = (response) => {
             httpMsg = '请求超时'
             break;
         case 500:
-            httpMsg = message || '服务器端出错'
+            httpMsg = msg || '服务器端出错'
             break;
         case 501:
             httpMsg = '网络未实现'
@@ -99,7 +99,10 @@ const checkStatus = (response) => {
 const checkCode = (res) => {
     let {httpStatus, msg, code, data} = res
     if (res && httpStatus !== 200) {
-        sweetAlert.error(msg ? msg : data)
+        HeyUI.$Message({
+            type : 'error',
+            text : msg
+        })
     }
     return {msg, code, data}
 }
